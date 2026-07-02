@@ -8,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CashWithdrawalTest {
 
-    private final String testDbUrl = "jdbc:h2:mem:db_withdrawal_test;DB_CLOSE_DELAY=-1";
     private UserDatabase db;
     private CashWithdrawal cashWithdrawal;
 
     @BeforeEach
     public void setUp() throws SQLException {
+        String testDbUrl = "jdbc:h2:mem:db_withdrawal_test;DB_CLOSE_DELAY=-1";
         try (Connection conn = DriverManager.getConnection(testDbUrl);
              Statement stmt = conn.createStatement()) {
             stmt.execute("DROP TABLE IF EXISTS cards");

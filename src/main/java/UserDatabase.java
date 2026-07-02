@@ -79,7 +79,7 @@ public class UserDatabase {
         return 0.0;
     }
 
-    public boolean updateBalance(String cardNumber, double newBalance) {
+    public void updateBalance(String cardNumber, double newBalance) {
         String sql = "UPDATE cards SET balance = ? WHERE card_number = ?";
 
         try (Connection conn = DriverManager.getConnection(dbUrl);
@@ -88,11 +88,9 @@ public class UserDatabase {
             pstmt.setDouble(1, newBalance);
             pstmt.setString(2, cardNumber);
 
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0; // Ha sikerült frissíteni a sort, igazat ad vissza
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Hiba az egyenleg frissítésekor: " + e.getMessage());
         }
-        return false;
     }
 }
