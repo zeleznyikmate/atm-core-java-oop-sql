@@ -1,34 +1,18 @@
-ATM Simulator & OOP Validation Project
-This is an ATM Simulator written in Java, following clean Object-Oriented Programming (OOP) principles. The primary goal of this project is to demonstrate SDET (Software Development Engineer in Test) and software development best practices, with a strong focus on layered architecture, business logic isolation, and rigorous unit testing (JUnit 5).
+# ATM Core - Java OOP & SQL Simulator
 
-🏗️ Architecture and Design (SRP & Abstraction)
-The project breaks away from a monolithic structure and is divided into distinct components following the Single Responsibility Principle (SRP):
+### 📌 Project Overview (High-Level Summary)
+This project is a fully functional Automated Teller Machine (ATM) simulation running right inside the computer's command line. The program allows users to securely log in with a card, check their balance, and perform cash withdrawals. The true value behind this development is that it utilizes a real, in-memory SQL database to manage data under the hood, making the system incredibly fast and safe. The software's stability is guaranteed by an automated testing suite that verifies all banking workflows are working flawlessly before every run.
 
-Main: Handles the user interface (console interaction) and basic process flow control.
+---
 
-LoginValidator: Performs technical pre-screening of input data (Null and Empty checks) and enforces ATM-specific formatting rules.
+### 💡 The Story & Milestone
+This project marks a massive personal milestone: **this is the first piece of code I have ever created and shared on GitHub.** During my learning journey, I completely lost the thread when it came to Java and the core concepts of Object-Oriented Programming (OOP). That is when I teamed up with an AI collaborator to review the theory through practical, hands-on examples—and out of that joint effort, this ATM simulator began to take shape. As a fun highlight of this journey, **while doing some manual testing, I accidentally stumbled upon a hidden UI bug** (duplicated menu inputs caused by a scanner buffer issue) which we then successfully tracked down and fixed in the code!
 
-UserDatabase: The data abstraction layer that dynamically handles the storage (cards.csv), verifies credentials, and completely hides file operations from upper layers.
+---
 
-LoginSession: A stateful class containing business logic to count failed attempts and handle security card blocking.
+### 🛠️ Technical Architecture & Implementation
+This application is a Java-based **CLI (Command Line Interface)** software built with Clean Code principles in mind, moving completely away from a monolithic structure.
 
-🔒 ATM Business Rules
-Authentication: Login is processed using a card number and a PIN code (instead of a traditional username/password pair).
-
-PIN Validation: For security reasons, the system only passes PIN codes that consist of exactly 4 digits to the database.
-
-Security Lockout: After 3 consecutive failed attempts, the LoginSession blocks access for security reasons (the ATM swallows the card).
-
-📊 Database Format (cards.csv)
-Authentication data is stored in a comma-separated CSV file located at the root of the project:
-t
-Code snippet
-12345678,4321
-87654321,1111
-
-🧪 Testing Strategy (JUnit 5)
-The robustness of the project is guaranteed by an extensive unit test suite covering all business logic:
-
-Data-Driven Testing: The LoginValidatorTest utilizes an external test data file (invalid_pins.csv) to perform Boundary Value Analysis and Equivalence Partitioning on malformed PIN formats (e.g., too short, too long, or containing alphabetic characters).
-
-Isolated Unit Tests: Separate test classes safeguard the internal logic of the session manager (LoginSessionTest) and the file reader (UserDatabaseTest), ensuring fast and reliable feedback.
+* **Database Layer:** We migrated the initial fragile CSV file-handling to a modern, in-memory **H2 SQL Database** (`jdbc:h2:mem`). Data lives securely in the RAM, and balance updates or credential checks are executed using standard SQL queries.
+* **Business Logic:** Distinct components handle the technical input validation (`LoginValidator`), the security card-blocking mechanism after 3 failed attempts (`LoginSession`), and financial operations (`CashWithdrawal`).
+* **Testing Strategy (JUnit 5):** The entire backend is safeguarded by automated **Unit Tests**. We used Data-Driven Testing and equivalence partitioning to test boundary values, ensuring instant feedback on system stability whenever code changes.
