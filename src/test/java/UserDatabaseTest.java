@@ -1,61 +1,41 @@
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserDatabaseTest {
 
-    private List<String> originalLines;
-    private final String path = "cards.csv";
+    private final String testDbUrl = "jdbc:h2:mem:db_user_test;DB_CLOSE_DELAY=-1";
+    private UserDatabase db;
 
     @BeforeEach
-    public void setUp() throws IOException {
-        if (Files.exists(Paths.get(path))) {
-            originalLines = Files.readAllLines(Paths.get(path));
+    public void setUp() throws SQLException {
+        try (Connection conn = DriverManager.getConnection(testDbUrl);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DROP TABLE IF EXISTS cards");
         }
 
-        List<String> testLines = List.of(
-                "12345678,1234,50000.0",
-                "87654321,2222,12500.0"
-        );
-        Files.write(Paths.get(path), testLines);
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        if (originalLines != null) {
-            Files.write(Paths.get(path), originalLines);
-        }
+        db = new UserDatabase(testDbUrl);
     }
 
     @Test
     public void should_ReturnTrue_When_CardAndPinMatchValidRecord() {
-        UserDatabase db = new UserDatabase();
-
-        boolean result = db.isValidCard("12345678", "1234");
-
+        boolean result = db.isValidCard("12345678", "1111");
         assertTrue(result);
     }
 
     @Test
     public void should_ReturnFalse_When_PinIsIncorrect() {
-        UserDatabase db = new UserDatabase();
-
-        boolean result = db.isValidCard("12345678", "4321");
-
+        boolean result = db.isValidCard("12345678", "9999");
         assertFalse(result);
     }
 
     @Test
     public void should_ReturnFalse_When_CardDoesNotExist() {
-        UserDatabase db = new UserDatabase();
-
-        boolean result = db.isValidCard("99999999", "1234");
-
+        boolean result = db.isValidCard("99999999", "1111");
         assertFalse(result);
     }
 }

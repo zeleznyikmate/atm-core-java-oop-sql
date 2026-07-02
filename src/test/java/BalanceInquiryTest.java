@@ -1,33 +1,33 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BalanceInquiryTest {
 
+    private final String testDbUrl = "jdbc:h2:mem:db_balance_test;DB_CLOSE_DELAY=-1";
+    private UserDatabase db;
+    private BalanceInquiry balanceInquiry;
+
     @BeforeEach
-    public void setUp() throws IOException {
-         List<String> lines = List.of(
-                "12345678,1234,50000.0",
-                "87654321,2222,12500.0",
-                "11112222,3333,0.0"
-        );
-        Files.write(Paths.get("src/test/resources/testdata/test_cards.csv"), lines);
+    public void setUp() throws SQLException {
+        try (Connection conn = DriverManager.getConnection(testDbUrl);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DROP TABLE IF EXISTS cards");
+        }
+
+        db = new UserDatabase(testDbUrl);
+        balanceInquiry = new BalanceInquiry(db);
     }
 
     @Test
-    public void testGetBalanceForValidCard() {
-        UserDatabase db = new UserDatabase("src/test/resources/testdata/test_cards.csv");
-        BalanceInquiry inquiry = new BalanceInquiry(db);
+    public void should_ReturnCorrectBalance_ForValidCard() {
+        balanceInquiry.execute("87654321");
 
-        String testCardNumber = "12345678";
-
-        double actualBalance = inquiry.execute(testCardNumber);
-
-        assertEquals(50000.0, actualBalance, 0.001);
+        double balance = db.getBalance("87654321");
+        assertEquals(12500.0, balance);
     }
 }
